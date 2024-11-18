@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cat Selector</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #f3f4f6, #ffffff);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin-top: 50px;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* Prevent overflow by applying box-sizing */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Smaller input box (narrower width) */
+        input[type="text"] {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 200px;  /* Set narrower width to 200px */
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.6);
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        button:active {
+            transform: translateY(2px);
+        }
+
+        /* Card-like container for the main content */
+        .content-card {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: scale(1.03);
+        }
+
+        /* Styling for cat image */
+        img {
+            max-width: 80%;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Loading spinner */
+        .loading {
+            font-size: 16px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Small responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            button, input[type="text"] {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content-card">
+            <h1>AI Cat Selector</h1>
+            <p>Write the mood or type of cat you want to see (e.g., sleepy, funny, angry, etc.), but don’t include the word "cat."</p>
+
+            <!-- Smaller text box for mood input (200px width) -->
+            <input type="text" id="catMood" placeholder="e.g. happy, sleepy, sassy, etc.">
+
+            <!-- Button to fetch a cat based on mood -->
+            <button onclick="getMoodCat()">Show My Mood Cat!</button>
+
+            <!-- Button to fetch a random cat -->
+            <button onclick="getRandomCat()">Show Me a Random Cat!</button>
+
+            <!-- Displaying the cat image -->
+            <div id="catPhoto"></div>
+
+            <!-- Loading spinner -->
+            <div class="loading" id="loadingSpinner" style="display: none;">
+                <div class="spinner"></div> Fetching your cat...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetches a random cat (no mood, just random)
+        async function getRandomCat() {
+            const catPhotoDiv = document.getElementById("catPhoto");
+            const loadingSpinner = document.getElementById("loadingSpinner");
+
+            // Show loading spinner
+            loadingSpinner.style.display = "block";
+            catPhotoDiv.innerHTML = ""; // Clear previous content
+
+            try {
+                const url = 'https://cataas.com/cat';  // Random cat URL
+                const response = await fetch(url);
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                loadingSpinner.style.display = "none"; // Hide loading spinner
+
+                const imageUrl = response.url; // Get the image URL from the response
+                catPhotoDiv.innerHTML = `<img src="${imageUrl}" alt="random cat">`;
+            } catch (error) {
+                loadingSpinner.style.display = "none"; // Hide loading spinner
+                catPhotoDiv.innerHTML = "<p>Sorry, we couldn't fetch your cat. Try again later!</p>";
+                console.error(error);
+            }
+        }
+
+        // Fetches a cat based on the mood input by the user
+        async function getMoodCat() {
+            const mood = document.getElementById("catMood").value.trim().toLowerCase();
+            const catPhotoDiv = document.getElementById("catPhoto");
+            const loadingSpinner = document.getElementById("loadingSpinner");
+
+            // Show loading spinner
+            loadingSpinner.style.display = "block";
+            catPhotoDiv.innerHTML = ""; // Clear previous content
+
+            // If no mood is entered, show an alert and stop the function
+            if (!mood) {
+                alert("Please enter a mood for the cat.");
+                loadingSpinner.style.display = "none";
+                return;
+            }
+
+            try {
+                const url = `https://cataas.com/cat/${mood}`;
+                const response = await fetch(url);
+
+                // If the response is not ok, display an error message
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                loadingSpinner.style.display = "none"; // Hide loading spinner
+
+                const imageUrl = response.url; // Get the image URL from the response
+                catPhotoDiv.innerHTML = `<img src="${imageUrl}" alt="${mood} cat">`;
+            } catch (error) {
+                loadingSpinner.style.display = "none"; // Hide loading spinner
+                catPhotoDiv.innerHTML = "<p>Sorry, we couldn't fetch your cat. Try again later!</p>";
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
